@@ -8,10 +8,10 @@ using FivePD.API.Utils;
 
 namespace DrugDeal
 {
-    [CalloutProperties("Drug Deal", "GGGDunlix", "0.0.1")]
+    [CalloutProperties("Drug Deal", "GGGDunlix", "0.2.0")]
     public class DrugDeal : Callout
     {
-        Ped suspect, suspect2;
+        Ped dealer, buyer;
         Vehicle car;
         private Vector3[] coordinates = {
             new Vector3(627.0128f, 127.511f, 92.82616f),
@@ -94,52 +94,45 @@ new Vector3(537.7644f, -1974.583f, 24.55501f),
         public DrugDeal()
         {
             Vector3 location = coordinates.OrderBy(x => World.GetDistance(x, Game.PlayerPed.Position)).Skip(3).First();
-
+            // 2.0.0 add onesync support
             InitInfo(location);
             ShortName = "Drug Deal";
-            CalloutDescription = "A drug deal is in progress. Get to the location and stop it. Respond in code 3..";
+            CalloutDescription = "A drug deal is in progress. Get to the location and stop it. Respond in code 3.";
             ResponseCode = 3;
             StartDistance = 60f;
         }
 
         public async override Task OnAccept()
         {
-            var cars = new[]
-          {
-               VehicleHash.Burrito,
-               VehicleHash.Burrito2,
-               VehicleHash.Burrito3,
-               VehicleHash.Burrito4,
-               VehicleHash.Burrito5,
-               VehicleHash.GBurrito,
-               VehicleHash.GBurrito2,
-           };
-
-            InitBlip();
-            UpdateData();
-            suspect = await SpawnPed(RandomUtils.GetRandomPed(), Location);
-            suspect2 = await SpawnPed(RandomUtils.GetRandomPed(), Location);
-            car = await SpawnVehicle(cars[RandomUtils.Random.Next(cars.Length)], World.GetNextPositionOnStreet(Location));
-            car.Windows.RollDownAllWindows();
-            CitizenFX.Core.Native.API.SetVehicleDoorOpen(CitizenFX.Core.Native.API., VehicleDoorIndex.BackLeftDoor, true, true);
-            CitizenFX.Core.Native.API.SetVehicleDoorOpen(car, VehicleDoorIndex.BackRightDoor, true, true);
-            suspect.AlwaysKeepTask = true;
-            suspect.BlockPermanentEvents = true;
-            suspect2.AlwaysKeepTask = true;
-            suspect2.BlockPermanentEvents = true;
+            
         }
 
-        public override void OnStart(Ped player)
+        public async override void OnStart(Ped player)
         {
             base.OnStart(player);
-            suspect.Weapons.Give(WeaponHash.Bottle, 1, true, true);
-            suspect2.Weapons.Give(WeaponHash.Bottle, 1, true, true);
-            suspect.Task.FightAgainst(suspect2);
-            suspect2.Task.FightAgainst(suspect);
-            suspect.AttachBlip();
-            suspect2.AttachBlip();
-            suspect.Armor = 4000;
-            suspect2.Armor = 4000;
+
+            Random random = new Random();
+            int x = random.Next(1, 100 + 1);
+            if (x <= 40)
+            {
+                dealer.Weapons.Give(WeaponHash.APPistol, 9999, true, true);
+                buyer.Task.ReactAndFlee(player);
+                dealer.Task.ShootAt(player);
+            }
+            else if (x > 40 && x <= 65)
+            {
+                dealer.Task.ReactAndFlee(player);
+                buyer.Task.ReactAndFlee(player);
+            }
+            else
+            {
+                dealer.SetIntoVehicle(car, VehicleSeat.Driver);
+                dealer.Task.ReactAndFlee(player);
+                buyer.Task.ReactAndFlee(player);
+            }
+            buyer.AttachBlip();
+            dealer.AttachBlip();
+            car.AttachBlip();
 
         }
     }
