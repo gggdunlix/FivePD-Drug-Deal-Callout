@@ -14,5 +14,5 @@ Ideally the callout is OneSync supported, if it is **not** or if there are any o
 ![image](https://user-images.githubusercontent.com/33298379/212431568-3a4f6fef-8cd0-45d6-a603-4f172db7ac6e.png)
 
 ## HOW TO INSTALL
-1. Grab the latest DLL from [releases](/releases)
+1. Grab the latest DLL from [releases](https://github.com/gggdunlix/FivePD-Drug-Deal-Callout/releases)
 2. Download it and paste it into your `callouts` folder in the FivePD resource folder.
